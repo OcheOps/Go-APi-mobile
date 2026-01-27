@@ -3,5 +3,5 @@
 
 :80 {
     # Proxy all traffic to the 'api' service on port 8080
-    reverse_proxy api:8080
+    reverse_proxy interviewapi.czettapay.com
 }
