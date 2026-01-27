@@ -1,0 +1,220 @@
+basePath: /v1
+definitions:
+  main.CreateNoteRequest:
+    properties:
+      body:
+        description: Body of the note
+        example: Detailed description...
+        type: string
+      tags:
+        description: Tags for the note
+        example:
+        - science
+        - important
+        items:
+          type: string
+        type: array
+      title:
+        description: Title of the note (required)
+        example: New Discovery
+        type: string
+    type: object
+  main.Note:
+    properties:
+      body:
+        description: Body content of the note
+        example: Observed some interesting patterns...
+        type: string
+      createdAt:
+        description: Creation timestamp in RFC3339 format
+        example: "2026-01-27T20:20:45+01:00"
+        type: string
+      id:
+        description: Unique ID of the note
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      tags:
+        description: List of tags associated with the note
+        example:
+        - nature
+        - assessment
+        items:
+          type: string
+        type: array
+      title:
+        description: Title of the note
+        example: My Field Note
+        type: string
+      updatedAt:
+        description: Last update timestamp in RFC3339 format
+        example: "2026-01-27T20:20:45+01:00"
+        type: string
+    type: object
+  main.UpdateNoteRequest:
+    properties:
+      body:
+        description: New body (optional)
+        example: Updated description...
+        type: string
+      tags:
+        description: New tags (optional)
+        example:
+        - science
+        - update
+        items:
+          type: string
+        type: array
+      title:
+        description: New title (optional)
+        example: Updated Discovery
+        type: string
+      updatedAt:
+        description: Timestamp of the note version being updated (required for conflict
+          detection)
+        example: "2026-01-27T20:20:45+01:00"
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@fieldnotes.example.com
+    name: API Support
+  description: A production-style Go REST API for "Field Notes" assessment.
+  license:
+    name: MIT
+  title: Field Notes API
+  version: "1.0"
+paths:
+  /notes:
+    get:
+      description: Get all notes, ordered by last update time descending
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Note'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all notes
+      tags:
+      - notes
+    post:
+      consumes:
+      - application/json
+      description: Create a new note with the provided title, body, and tags
+      parameters:
+      - description: Note content
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.Note'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new note
+      tags:
+      - notes
+  /notes/{id}:
+    delete:
+      description: Delete a note by its ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a note
+      tags:
+      - notes
+    patch:
+      consumes:
+      - application/json
+      description: Update specific fields of a note. Requires valid 'updatedAt' for
+        conflict detection.
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update content
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Note'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: 'Conflict: Returns server version of the note'
+          schema:
+            $ref: '#/definitions/main.Note'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a note
+      tags:
+      - notes
+swagger: "2.0"

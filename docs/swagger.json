@@ -1,0 +1,317 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A production-style Go REST API for \"Field Notes\" assessment.",
+        "title": "Field Notes API",
+        "contact": {
+            "name": "API Support",
+            "email": "support@fieldnotes.example.com"
+        },
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/v1",
+    "paths": {
+        "/notes": {
+            "get": {
+                "description": "Get all notes, ordered by last update time descending",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "List all notes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Note"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new note with the provided title, body, and tags",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "Create a new note",
+                "parameters": [
+                    {
+                        "description": "Note content",
+                        "name": "note",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateNoteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/notes/{id}": {
+            "delete": {
+                "description": "Delete a note by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "Delete a note",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Note ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update specific fields of a note. Requires valid 'updatedAt' for conflict detection.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "Update a note",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Note ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update content",
+                        "name": "note",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateNoteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: Returns server version of the note",
+                        "schema": {
+                            "$ref": "#/definitions/main.Note"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.CreateNoteRequest": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "description": "Body of the note",
+                    "type": "string",
+                    "example": "Detailed description..."
+                },
+                "tags": {
+                    "description": "Tags for the note",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "science",
+                        "important"
+                    ]
+                },
+                "title": {
+                    "description": "Title of the note (required)",
+                    "type": "string",
+                    "example": "New Discovery"
+                }
+            }
+        },
+        "main.Note": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "description": "Body content of the note",
+                    "type": "string",
+                    "example": "Observed some interesting patterns..."
+                },
+                "createdAt": {
+                    "description": "Creation timestamp in RFC3339 format",
+                    "type": "string",
+                    "example": "2026-01-27T20:20:45+01:00"
+                },
+                "id": {
+                    "description": "Unique ID of the note",
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "tags": {
+                    "description": "List of tags associated with the note",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "nature",
+                        "assessment"
+                    ]
+                },
+                "title": {
+                    "description": "Title of the note",
+                    "type": "string",
+                    "example": "My Field Note"
+                },
+                "updatedAt": {
+                    "description": "Last update timestamp in RFC3339 format",
+                    "type": "string",
+                    "example": "2026-01-27T20:20:45+01:00"
+                }
+            }
+        },
+        "main.UpdateNoteRequest": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "description": "New body (optional)",
+                    "type": "string",
+                    "example": "Updated description..."
+                },
+                "tags": {
+                    "description": "New tags (optional)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "science",
+                        "update"
+                    ]
+                },
+                "title": {
+                    "description": "New title (optional)",
+                    "type": "string",
+                    "example": "Updated Discovery"
+                },
+                "updatedAt": {
+                    "description": "Timestamp of the note version being updated (required for conflict detection)",
+                    "type": "string",
+                    "example": "2026-01-27T20:20:45+01:00"
+                }
+            }
+        }
+    }
+}
