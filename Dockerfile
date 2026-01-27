@@ -13,6 +13,7 @@ RUN go mod download
 # Build
 COPY . .
 # CGO_ENABLED=0 is default for modernc.org/sqlite on pure go, but let's be explicit
+RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -o fieldnotes .
 
 # Runtime stage

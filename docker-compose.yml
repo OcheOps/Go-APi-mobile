@@ -1,7 +1,8 @@
 services:
   # The Application
   api:
-    build: .
+    # build: . # Uncomment if running locally with source
+    image: ${API_IMAGE:-fieldnotes-api:latest}
     # We DO NOT expose ports here anymore.
     # The proxy will talk to this service internally on the docker network.
     volumes:
