@@ -1,0 +1,7 @@
+# If you have a domain, replace :80 with your domain name (e.g., api.example.com)
+# Caddy will automatically handle HTTPS for you.
+
+:80 {
+    # Proxy all traffic to the 'api' service on port 8080
+    reverse_proxy api:8080
+}

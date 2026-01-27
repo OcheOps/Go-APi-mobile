@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	_ "modernc.org/sqlite"
 )
@@ -11,8 +12,14 @@ var db *sql.DB
 
 func InitDB() {
 	var err error
+	// Check if /data directory exists (common pattern for Docker volumes)
+	dbPath := "notes.db"
+	if _, err := os.Stat("data"); !os.IsNotExist(err) {
+		dbPath = "data/notes.db"
+	}
+
 	// Register sqlite driver is done by the import
-	db, err = sql.Open("sqlite", "notes.db")
+	db, err = sql.Open("sqlite", dbPath)
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
 	}
